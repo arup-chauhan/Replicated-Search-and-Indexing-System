@@ -1,4 +1,4 @@
-APP=clustered-search-0.1.0
+APP=replicated-search-and-indexing-system-0.1.0
 
 
 .PHONY: build run test docker-up docker-build
@@ -17,7 +17,7 @@ mvn -q test
 
 
 docker-build:
-docker build -t clustered-search:dev .
+docker build -t replicated-search-indexing-system:dev .
 
 
 docker-up:

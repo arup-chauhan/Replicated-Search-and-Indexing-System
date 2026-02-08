@@ -3,5 +3,11 @@ kind: ConfigMap
 metadata:
   name: engine-config
 data:
-  SPRING_DATASOURCE_URL: "${POSTGRES_URL}"
-  REDIS_HOST: "${REDIS_HOST}"
+  POSTGRES_URL: "jdbc:postgresql://postgres:${POSTGRES_PORT}/engine"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "${REDIS_PORT}"
+  ENGINE_INDEX_PATH: "/data/index"
+  SERVER_PORT: "${HTTP_PORT}"
+  GRPC_PORT: "${GRPC_PORT}"
+  MANAGEMENT_PORT: "${MANAGEMENT_PORT}"
+  MANAGEMENT_METRICS_TAG: "${MANAGEMENT_METRICS_TAG}"

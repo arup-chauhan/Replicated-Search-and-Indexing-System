@@ -1,41 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: clustered-engine
+  name: replicated-search-indexing-system
 spec:
   replicas: ${ENGINE_REPLICAS}
   selector:
     matchLabels:
-      app: clustered-engine
+      app: replicated-search-indexing-system
   template:
     metadata:
       labels:
-        app: clustered-engine
+        app: replicated-search-indexing-system
     spec:
       containers:
-        - name: clustered-engine
+        - name: replicated-search-indexing-system
           image: "${ENGINE_IMAGE}"
+          imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: ${HTTP_PORT}
-            - containerPort: ${GRPC_PORT}
+            - name: http
+              containerPort: ${HTTP_PORT}
+            - name: grpc
+              containerPort: ${GRPC_PORT}
+            - name: mgmt
+              containerPort: ${MANAGEMENT_PORT}
           envFrom:
             - configMapRef:
                 name: engine-config
             - secretRef:
                 name: engine-secret
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: clustered-engine-svc
-spec:
-  selector:
-    app: clustered-engine
-  ports:
-    - name: http
-      port: ${HTTP_PORT}
-      targetPort: ${HTTP_PORT}
-    - name: grpc
-      port: ${GRPC_PORT}
-      targetPort: ${GRPC_PORT}
-  type: ClusterIP
+          volumeMounts:
+            - name: engine-index
+              mountPath: /data/index
+      volumes:
+        - name: engine-index
+          emptyDir: {}

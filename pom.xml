@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.engine</groupId>
-    <artifactId>clustered-search-and-indexing-engine</artifactId>
+    <artifactId>replicated-search-and-indexing-system</artifactId>
     <version>0.1.0</version>
-    <name>Clustered Search and Indexing Engine</name>
+    <name>Replicated Search and Indexing System</name>
 
     <properties>
         <java.version>21</java.version>

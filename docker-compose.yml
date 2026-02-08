@@ -1,24 +1,42 @@
 services:
-db:
-image: postgres:16
-environment:
-POSTGRES_DB: engine
-POSTGRES_USER: engine
-POSTGRES_PASSWORD: engine
-ports: ["5432:5432"]
-redis:
-image: redis:7-alpine
-ports: ["6379:6379"]
-app:
-build: .
-depends_on: [db, redis]
-environment:
-POSTGRES_URL: jdbc:postgresql://db:5432/engine
-POSTGRES_USER: engine
-POSTGRES_PASSWORD: engine
-REDIS_HOST: redis
-ENGINE_INDEX_PATH: /data/index
-JWT_HMAC_BASE64: c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0
-ports: ["8080:8080"]
-volumes:
-  - ./data:/data
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: engine
+      POSTGRES_USER: engine
+      POSTGRES_PASSWORD: engine
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7.2.5-alpine
+    command: ["redis-server", "--requirepass", "Redis@123"]
+    ports:
+      - "6379:6379"
+
+  app:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      POSTGRES_URL: jdbc:postgresql://db:5432/engine
+      POSTGRES_USER: engine
+      POSTGRES_PASSWORD: engine
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: Redis@123
+      ENGINE_INDEX_PATH: /data/index
+      JWT_HMAC_BASE64: c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0
+      JWT_TTL_SECONDS: 3600
+      JWT_SECRET: VGhpcyBpcyBjbHVzdGVyZWQgc2VhcmNoIGVuZ2luZQ==
+      SERVER_PORT: 8080
+      GRPC_PORT: 9090
+      MANAGEMENT_PORT: 8081
+      MANAGEMENT_METRICS_TAG: replicated-search-indexing-system
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+      - "8081:8081"
+    volumes:
+      - ./data:/data

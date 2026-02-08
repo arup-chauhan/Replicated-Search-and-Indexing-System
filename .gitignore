@@ -57,3 +57,5 @@ logs/
 */.Thumbs.db
 **/.Thumbs.db
 
+# Local planning baseline
+GAPS_TODO.md

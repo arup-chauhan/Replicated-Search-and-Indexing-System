@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: clustered-search-and-indexing-engine
+    name: replicated-search-and-indexing-system
 
   datasource:
     url: ${POSTGRES_URL}

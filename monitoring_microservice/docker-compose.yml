@@ -3,7 +3,7 @@ version: "3.8"
 services:
   prometheus:
     image: prom/prometheus:latest
-    container_name: clustered-search-prometheus
+    container_name: replicated-search-prometheus
     volumes:
       - ./prometheus.yml.template:/etc/prometheus/prometheus.yml.template
     ports:
@@ -13,7 +13,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: clustered-search-grafana
+    container_name: replicated-search-grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}

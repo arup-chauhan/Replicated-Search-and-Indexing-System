@@ -4,6 +4,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +44,7 @@ public class MetadataService {
         return false;
     }
 
+    @Transactional
     @CachePut(value = "metadata", key = "#result.id")
     public DocumentMeta saveWithTags(String title, String content, List<String> tags) {
         DocumentMeta m = new DocumentMeta();
@@ -50,13 +52,22 @@ public class MetadataService {
         m.setContent(content);
 
         Set<Tag> tagEntities = new HashSet<>();
-        for (String tagName : tags) {
-            Tag tag = tagRepo.findByName(tagName).orElseGet(() -> {
-                Tag newTag = new Tag();
-                newTag.setName(tagName);
-                return tagRepo.save(newTag);
-            });
-            tagEntities.add(tag);
+        if (tags != null) {
+            for (String rawTagName : tags) {
+                if (rawTagName == null) {
+                    continue;
+                }
+                String tagName = rawTagName.trim();
+                if (tagName.isEmpty()) {
+                    continue;
+                }
+                Tag tag = tagRepo.findByName(tagName).orElseGet(() -> {
+                    Tag newTag = new Tag();
+                    newTag.setName(tagName);
+                    return tagRepo.save(newTag);
+                });
+                tagEntities.add(tag);
+            }
         }
         m.setTags(tagEntities);
 

@@ -1,104 +1,92 @@
-# **Clustered Search & Indexing Engine**
+# **Replicated Search and Indexing System**
 
-A high-performance system for **distributed text ingestion, indexing, and search**, powered by **Lucene** and **Spark**.
+A resource-efficient search service for **lexical retrieval + metadata filtering**, powered by **Apache Lucene**, **PostgreSQL**, and **Redis suggestions**.
 
 ---
 
 ## **Table of Contents**
 
-* [Project Overview](#project-overview)
-* [Features](#features)
-* [Real-World Applications](#real-world-applications)
-* [System Architecture](#system-architecture)
-* [Installation](#installation)
-* [Usage](#usage)
-* [API Endpoints](#api-endpoints)
-* [Example Output](#example-output)
-* [Caching & Storage](#caching--storage)
-* [Database](#database)
-* [Monitoring & Scaling](#monitoring--scaling)
-* [Docker Deployment](#docker-deployment)
-* [Contributing](#contributing)
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Endpoints](#api-endpoints)
+- [Example Output](#example-output)
+- [Caching & Storage](#caching--storage)
+- [Database](#database)
+- [Monitoring & Scaling](#monitoring--scaling)
+- [Docker Deployment](#docker-deployment)
+- [Kubernetes Deployment (Minikube)](#kubernetes-deployment-minikube)
+- [gRPC Services](#grpc-services)
+- [Contributing](#contributing)
 
 ---
 
 ## **Project Overview**
 
-The **Clustered Search & Indexing Engine** integrates:
+The **Replicated Search and Indexing System** currently integrates:
 
-* **Apache Lucene** for inverted index creation, tokenization, and scoring (BM25, TF-IDF).
-* **Apache Spark** for distributed indexing and parallel query execution.
-* **Redis** for autocomplete and hot query caching.
-* **PostgreSQL** for structured metadata storage and filtering.
-* **Kafka connectors** for streaming ingestion.
-* **Docker + Kubernetes** for scalable, reproducible deployments.
-* **Prometheus + Grafana** for monitoring and visualization.
+- **Apache Lucene** for full-text indexing and relevance search.
+- **PostgreSQL** for document metadata and tags.
+- **Redis** for query suggestion popularity tracking.
+- **JWT-based auth** for protected REST endpoints.
+- **REST + gRPC APIs** for programmatic integration.
+- **Docker + Kubernetes (minikube-first)** for deployment.
+- **Prometheus metrics endpoint** via Spring Actuator.
 
-This engine enables **low-latency, relevance-ranked search** across massive document corpora, scaling seamlessly from small clusters to enterprise-grade deployments.
+### **Current Production Profile**
+
+- Spring Boot application layer.
+- Lucene filesystem index (`ENGINE_INDEX_PATH`).
+- PostgreSQL metadata persistence.
+- Redis suggestion store.
+- Kubernetes manifests targeting Minikube workflow.
+
+### **Operating Envelope (Current vs Target)**
+
+- Current safe operating range is small-to-mid scale (before performance hardening tasks are completed).
+- Target roadmap (tracked in `GAPS_TODO.md`):
+  - Up to **1M documents**.
+  - **p95 < 200ms** query latency under defined benchmark load.
 
 ---
 
 ## **Features**
 
-* Distributed **index building** with Spark.
-* Support for **phrase queries, fuzzy search, range queries, and highlighting**.
-* **Lucene analyzers** for stemming, tokenization, and stopword filtering.
-* **REST/gRPC APIs** with OAuth2/JWT authentication.
-* **Redis caching** for autocomplete and repeated queries.
-* **CDN integration** for edge delivery of popular queries.
-* **SQL-based filtering** on metadata via PostgreSQL.
-* **Kubernetes auto-scaling** for index/query workers.
+Implemented now:
 
----
+- Lucene-backed indexing and search.
+- Metadata CRUD with PostgreSQL/JPA.
+- Tag association and retrieval.
+- Redis-powered search suggestions.
+- JWT login/register flow for API access.
+- REST endpoints for indexing/search/metadata/suggestions.
+- gRPC search service.
 
-## **Real-World Applications**
+Roadmap:
 
-### **1. Enterprise Knowledge Bases**
-
-* Search across millions of **policies, reports, and technical documents**.
-* Filter results by **author, department, or publication date**.
-
-### **2. E-Commerce & Retail**
-
-* Power **product search** with full-text + structured filters (price, category).
-* Deliver **real-time autocomplete** for customer-facing portals.
-
-### **3. Media & Publishing**
-
-* Drive **news/article portals** with relevance-based search.
-* Provide editors with **metadata-driven dashboards**.
-
-### **4. Cloud Services & Logs**
-
-* Search across **multi-region logs**, filter by **timestamp, severity**.
-* Combine **Lucene search** with **Postgres aggregations**.
+- Stronger distributed indexing/query strategy.
+- Full benchmark harness with reproducible SLO gates.
+- Helm templates completion.
 
 ---
 
 ## **System Architecture**
 
-```plaintext
-[ Document Sources ] --> [ Kafka / Batch Loader ] 
-            |
-            v
-[ Data Ingestion Layer ] --> Tokenization, Stemming, Stopword Removal (Lucene Analyzers)
-            |
-            v
-[ Distributed Indexing Layer (Spark + Lucene) ] --> Sharded & Replicated Index Segments
-            |
-            v
-[ Query Layer ] --> Lucene Search (BM25/TF-IDF) + Spark Coordination
-            |
-            +--> [ Redis Cache ] --> [ CDN Edge ]
-            |
-            v
-[ API Layer ] --> REST/gRPC Endpoints + Auth + Rate Limiting
-            |
-            v
-[ PostgreSQL Metadata DB ] --> Filters, Analytics
-            |
-            v
-[ Monitoring Layer ] --> Prometheus + Grafana
+```mermaid
+flowchart TD
+    A[Client] --> B[REST API / gRPC]
+    B --> C[JWT Auth]
+    B --> D[Lucene Service]
+    B --> E[Metadata Service]
+    B --> F[Suggest Service]
+
+    D --> G[Lucene FS Index]
+    E --> H[PostgreSQL]
+    F --> I[Redis ZSET]
+
+    B --> J[Actuator Metrics]
 ```
 
 ---
@@ -107,17 +95,17 @@ This engine enables **low-latency, relevance-ranked search** across massive docu
 
 ### **Prerequisites**
 
-* Java 11+
-* Apache Spark (local or cluster)
-* Redis
-* PostgreSQL
-* Docker & Kubernetes
+- Java 21+
+- Maven 3.9+
+- PostgreSQL
+- Redis 7.2.x
+- Docker & Kubernetes (Minikube for local cluster)
 
 ### **Clone the Repository**
 
 ```bash
-git clone https://github.com/Arup-Chauhan/Clustered-Search-Indexing-Engine.git
-cd Clustered-Search-Indexing-Engine
+git clone https://github.com/Arup-Chauhan/Replicated-Search-and-Indexing-System.git
+cd Replicated-Search-and-Indexing-System
 ```
 
 ### **Build**
@@ -130,26 +118,55 @@ mvn clean package
 
 ## **Usage**
 
-### **Index Documents**
+### **Register + Login**
 
 ```bash
-spark-submit --class com.engine.Indexer target/search-engine.jar /input/docs
+curl -X POST "http://localhost:8080/api/auth/register?username=arup&password=pass123"
+TOKEN=$(curl -s -X POST "http://localhost:8080/api/auth/login?username=arup&password=pass123" | jq -r '.token')
 ```
 
-### **Query the Engine**
+### **Index a Document**
 
 ```bash
-curl -X POST http://localhost:8080/search -d '{"query": "distributed systems"}'
+curl -X POST http://localhost:8080/api/index \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Doc One","content":"Hello Lucene world","tags":["hello","lucene"]}'
+```
+
+### **Search**
+
+```bash
+curl "http://localhost:8080/api/search?q=hello&size=10&offset=0" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
 
 ## **API Endpoints**
 
-* **POST /search** → Full-text query, ranked results.
-* **GET /suggest** → Autocomplete from Redis cache.
-* **GET /filter** → Query with Postgres metadata filters.
-* **GET /health** → Cluster health check.
+Auth:
+- **POST /api/auth/register**
+- **POST /api/auth/login**
+
+Search & Index:
+- **POST /api/index**
+- **GET /api/search**
+
+Suggestions:
+- **POST /api/suggest/record**
+- **GET /api/suggest/top**
+- **GET /api/suggest**
+
+Metadata & Tags:
+- **POST /api/metadata**
+- **GET /api/metadata/{id}**
+- **GET /api/metadata**
+- **DELETE /api/metadata/{id}**
+- **GET /api/tags**
+
+Health:
+- **GET /api/health**
 
 ---
 
@@ -158,181 +175,97 @@ curl -X POST http://localhost:8080/search -d '{"query": "distributed systems"}'
 **Search Response:**
 
 ```json
-{
-  "query": "distributed systems",
-  "results": [
-    { "doc_id": "123", "score": 0.94, "title": "Distributed Systems Primer", "author": "Tanenbaum" },
-    { "doc_id": "456", "score": 0.89, "title": "Scalable Search with Spark & Lucene", "author": "Chauhan" }
-  ]
-}
-```
-
-**Filter Query Response:**
-
-```json
-{
-  "query": "search",
-  "filters": { "author": "Chauhan", "year": "2025" },
-  "results": [
-    { "doc_id": "456", "score": 0.89, "title": "Scalable Search with Spark & Lucene" }
-  ]
-}
+[
+  {
+    "id": "1",
+    "title": "Doc One",
+    "score": 0.43
+  }
+]
 ```
 
 ---
 
 ## **Caching & Storage**
 
-* **Redis** → Hot queries + autocomplete.
-* **Lucene** → Inverted index segments.
-* **PostgreSQL** → Metadata for filters, analytics, dashboards.
+- **Lucene index** → full-text inverted index on local filesystem path.
+- **PostgreSQL** → metadata and tag persistence.
+- **Redis** → suggestion popularity store (`search:suggestions` sorted set).
 
 ---
 
 ## **Database**
 
-* **Indexes:** Lucene segments (disk-based).
-* **Metadata:** Stored in PostgreSQL for structured queries.
-* **Hybrid Queries:** Combine **Lucene search** (text relevance) with **Postgres filters** (author, timestamp).
+- JPA entities include:
+  - `document_meta`
+  - `tag`
+  - join table `document_tag`
+  - auth `user` entity table (generated by JPA)
 
-### **Sample PostgreSQL Schema**
-
-```sql
-CREATE TABLE documents (
-    doc_id SERIAL PRIMARY KEY,
-    title VARCHAR(255),
-    author VARCHAR(100),
-    category VARCHAR(100),
-    created_at TIMESTAMP DEFAULT NOW(),
-    tags TEXT[],
-    file_path TEXT NOT NULL
-);
-
-CREATE TABLE query_logs (
-    id SERIAL PRIMARY KEY,
-    query_text VARCHAR(500) NOT NULL,
-    execution_time_ms INT,
-    results_count INT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-```
+- Metadata and search index are currently written in sequence; consistency hardening is tracked in `GAPS_TODO.md`.
 
 ---
 
 ## **Monitoring & Scaling**
 
-* **Prometheus** → Collects engine metrics:
+- Actuator endpoints exposed:
+  - `/actuator/health`
+  - `/actuator/info`
+  - `/actuator/prometheus`
 
-  * `search_request_count_total` (queries served)
-  * `search_request_latency_ms` (query latency histogram)
-  * `documents_indexed_total` (docs indexed)
-  * `cache_hit_count_total` / `cache_miss_count_total` (Redis performance)
-  * `spark_job_duration_seconds` (Spark worker job durations)
-  * `system_cpu_usage_percent`, `system_memory_usage_bytes` (cluster health)
+- Metrics include Lucene indexing counters (Micrometer).
 
-* **Grafana** → Dashboards visualizing:
-
-  * Queries per second (QPS)
-  * Latency distribution (p50, p95, p99)
-  * Index build throughput
-  * Cache hit/miss ratios
-  * Spark cluster utilization
-
-* **Kubernetes Autoscaling** (optional) → Horizontal Pod Autoscaler scales query/index workers based on Prometheus metrics.
+- Scale roadmap (tracked in `GAPS_TODO.md`):
+  - batched Lucene commits,
+  - query guardrails,
+  - benchmark-driven tuning,
+  - shard strategy for higher throughput.
 
 ---
 
-### **Metrics Example (Java + Prometheus Client)**
-
-```java
-import io.prometheus.client.Counter;
-import io.prometheus.client.Histogram;
-
-public class MetricsRegistry {
-    static final Counter searchRequests = Counter.build()
-        .name("search_request_count_total")
-        .help("Total number of search queries.")
-        .register();
-
-    static final Histogram queryLatency = Histogram.build()
-        .name("search_request_latency_ms")
-        .help("Query latency in milliseconds.")
-        .register();
-
-    public static void recordSearch(Runnable searchLogic) {
-        searchRequests.inc();
-        Histogram.Timer timer = queryLatency.startTimer();
-        try {
-            searchLogic.run();
-        } finally {
-            timer.observeDuration();
-        }
-    }
-}
-```
-
----
-
-### **Grafana Dashboard Example**
-
-Sample JSON panel for **query latency histograms**:
-
-```json
-{
-  "title": "Search Query Latency",
-  "type": "graph",
-  "targets": [
-    {
-      "expr": "histogram_quantile(0.95, sum(rate(search_request_latency_ms_bucket[5m])) by (le))",
-      "legendFormat": "p95 Latency"
-    },
-    {
-      "expr": "histogram_quantile(0.99, sum(rate(search_request_latency_ms_bucket[5m])) by (le))",
-      "legendFormat": "p99 Latency"
-    }
-  ],
-  "xaxis": { "mode": "time" },
-  "yaxes": [{ "format": "ms" }, { "format": "short" }]
-}
-```
-
-Other dashboards:
-
-* **Cache Hit Ratio** → `rate(cache_hit_count_total[5m]) / (rate(cache_hit_count_total[5m]) + rate(cache_miss_count_total[5m]))`
-* **Indexing Throughput** → `rate(documents_indexed_total[1m])`
-* **Cluster Load** → CPU/Memory usage from Prometheus node exporter.
-
----
-<!--
-### **Grafana Dashboard Screenshot**
-
-![Grafana Dashboard Example](docs/dashboard.png)
-
-*(Placeholder — add a real screenshot after running your cluster with Prometheus + Grafana)*
-
---->
 ## **Docker Deployment**
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Verify:
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8080/api/health
 ```
 
-For Kubernetes:
+---
+
+## **Kubernetes Deployment (Minikube)**
 
 ```bash
-kubectl apply -f k8s/Deployment.yaml
+minikube start
+./scripts/k8_deploy.sh
 ```
+
+The script:
+- builds the app image in Minikube Docker,
+- applies manifests from `k8/`,
+- waits for rollout completion,
+- prints host mapping for ingress.
+
+---
+
+## **gRPC Services**
+
+Proto definitions:
+- `src/main/proto/SearchService.proto`
+- `src/main/proto/MetadataService.proto`
+
+Implemented service status:
+- `SearchService`: wired to Lucene search and Redis query recording.
+- `MetadataService`: currently placeholder response logic (planned DB-backed implementation in gaps baseline).
 
 ---
 
 ## **Contributing**
 
-Big on contributions! Feel free to improve indexing/query logic, and open a PR.
+Contributions are welcome.
 
----
+Start from `GAPS_TODO.md` for prioritized P0/P1/P2 baseline tasks and scale targets.

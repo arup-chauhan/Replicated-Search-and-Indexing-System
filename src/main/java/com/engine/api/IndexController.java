@@ -5,6 +5,7 @@ import com.engine.mapper.DocumentMetaMapper;
 import com.engine.metadata.DocumentMeta;
 import com.engine.metadata.MetadataService;
 import com.engine.search.LuceneService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,18 @@ public class IndexController {
     }
 
     @PostMapping
-    public ResponseEntity<DocumentMetaDto> index(@RequestBody IndexReq req) throws Exception {
+    public ResponseEntity<?> index(@Valid @RequestBody IndexReq req) {
         DocumentMeta m = metadata.saveWithTags(req.title(), req.content(), req.tags());
-        lucene.indexDoc(String.valueOf(m.getId()), req.title(), req.content(), req.tags());
-        return ResponseEntity.ok(mapper.toDto(m));
+        try {
+            lucene.indexDoc(String.valueOf(m.getId()), req.title(), req.content(), req.tags());
+            return ResponseEntity.ok(mapper.toDto(m));
+        } catch (Exception e) {
+            // Best-effort compensation to reduce DB/index divergence on partial failure.
+            metadata.delete(m.getId());
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", "Indexing failed; metadata write rolled back",
+                    "details", e.getMessage()
+            ));
+        }
     }
 }

@@ -1,55 +1,242 @@
 openapi: 3.0.3
 info:
-title: Clustered Search API
-version: 0.1.0
+  title: Replicated Search and Indexing API
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8080
+
 paths:
-/api/auth/token:
-post:
-requestBody:
-required: true
-content:
-application/json:
-schema:
-type: object
-properties:
-username: { type: string }
-required: [username]
-responses:
-'200': { description: OK }
-/api/index:
-post:
-security: [{ bearerAuth: [] }]
-requestBody:
-required: true
-content:
-application/json:
-schema:
-type: object
-properties:
-title: { type: string }
-content: { type: string }
-tags: { type: array, items: { type: string } }
-required: [title, content]
-responses:
-'200': { description: Indexed }
-/api/search:
-get:
-parameters:
-  - in: query
-name: q
-required: true
-schema: { type: string }
-  - in: query
-name: size
-schema: { type: integer, default: 10 }
-  - in: query
-name: offset
-schema: { type: integer, default: 0 }
-responses:
-'200': { description: Results }
+  /api/auth/register:
+    post:
+      summary: Register a user
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User registered
+        '400':
+          description: User exists or bad request
+
+  /api/auth/login:
+    post:
+      summary: Login and get JWT
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: JWT issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials
+
+  /api/index:
+    post:
+      summary: Index a document and persist metadata
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - title
+                - content
+      responses:
+        '200':
+          description: Indexed
+        '401':
+          description: Unauthorized
+
+  /api/search:
+    get:
+      summary: Search indexed documents
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Search results
+        '401':
+          description: Unauthorized
+
+  /api/suggest:
+    get:
+      summary: Get prefix-based suggestions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: prefix
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Suggestions
+
+  /api/suggest/top:
+    get:
+      summary: Get top suggestions by popularity
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Suggestions
+
+  /api/suggest/record:
+    post:
+      summary: Record query for suggestions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Query recorded
+
+  /api/metadata:
+    get:
+      summary: List metadata
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Metadata list
+    post:
+      summary: Create metadata
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Metadata created
+
+  /api/metadata/{id}:
+    get:
+      summary: Get metadata by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Metadata
+        '404':
+          description: Not found
+    delete:
+      summary: Delete metadata by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+
+  /api/tags:
+    get:
+      summary: List tags
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tag list
+
+  /api/health:
+    get:
+      summary: API health
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Service up
+
 components:
-securitySchemes:
-bearerAuth:
-type: http
-scheme: bearer
-bearerFormat: JWT
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

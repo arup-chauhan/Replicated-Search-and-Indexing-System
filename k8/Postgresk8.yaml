@@ -7,7 +7,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -25,14 +25,23 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: ${POSTGRES_IMAGE}
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: ${POSTGRES_PORT}
           env:
+            - name: POSTGRES_DB
+              value: "engine"
             - name: POSTGRES_USER
-              value: "${POSTGRES_USER}"
+              valueFrom:
+                secretKeyRef:
+                  name: engine-secret
+                  key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
-              value: "${POSTGRES_PASSWORD}"
+              valueFrom:
+                secretKeyRef:
+                  name: engine-secret
+                  key: POSTGRES_PASSWORD
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data
@@ -49,6 +58,7 @@ spec:
   selector:
     app: postgres
   ports:
-    - port: ${POSTGRES_PORT}
+    - name: postgres
+      port: ${POSTGRES_PORT}
       targetPort: ${POSTGRES_PORT}
   type: ClusterIP

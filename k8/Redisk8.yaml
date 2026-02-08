@@ -14,14 +14,17 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:7
-          ports:
-            - containerPort: 6379
+          image: redis:7.2.5-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "redis-server --requirepass \"$REDIS_PASSWORD\""]
           env:
-            - name: REDIS_HOST
-              value: "${REDIS_HOST}"
-            - name: REDIS_PORT
-              value: "${REDIS_PORT}"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: engine-secret
+                  key: REDIS_PASSWORD
+          ports:
+            - containerPort: ${REDIS_PORT}
 ---
 apiVersion: v1
 kind: Service
@@ -31,6 +34,7 @@ spec:
   selector:
     app: redis
   ports:
-    - port: ${REDIS_PORT}
+    - name: redis
+      port: ${REDIS_PORT}
       targetPort: ${REDIS_PORT}
   type: ClusterIP

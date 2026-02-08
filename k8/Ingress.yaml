@@ -1,10 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: clustered-engine-ingress
+  name: replicated-search-indexing-system-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
     - host: ${ENGINE_HOST}
       http:
@@ -13,6 +14,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: clustered-engine-svc
+                name: replicated-search-indexing-system-svc
                 port:
                   number: ${HTTP_PORT}

@@ -12,7 +12,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI api() {
         return new OpenAPI().info(new Info()
-                .title("Clustered Search API")
+                .title("Replicated Search and Indexing API")
                 .description("Lucene-backed search & indexing service")
                 .version("0.1.0"));
     }

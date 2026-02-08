@@ -2,7 +2,7 @@
 # ------------------------------------
 # Add Horizontal Pod Autoscaler (HPA) when moving to a
 # production cluster (EKS/GKE/AKS). This will allow the
-# clustered-engine deployment to scale based on CPU/memory
+# replicated-search-indexing-system deployment to scale based on CPU/memory
 # utilization under real traffic.
 #
 # Not required for Minikube/local development.
@@ -11,12 +11,12 @@
 # apiVersion: autoscaling/v2
 # kind: HorizontalPodAutoscaler
 # metadata:
-#   name: clustered-engine-hpa
+#   name: replicated-search-indexing-system-hpa
 # spec:
 #   scaleTargetRef:
 #     apiVersion: apps/v1
 #     kind: Deployment
-#     name: clustered-engine
+#     name: replicated-search-indexing-system
 #   minReplicas: ${ENGINE_MIN_REPLICAS}
 #   maxReplicas: ${ENGINE_MAX_REPLICAS}
 #   metrics:

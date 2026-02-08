@@ -1,15 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: clustered-engine-svc
+  name: replicated-search-indexing-system-svc
 spec:
   selector:
-    app: clustered-engine
+    app: replicated-search-indexing-system
   ports:
     - name: http
       port: ${HTTP_PORT}
-      targetPort: ${HTTP_PORT}
+      targetPort: http
     - name: grpc
       port: ${GRPC_PORT}
-      targetPort: ${GRPC_PORT}
+      targetPort: grpc
+    - name: management
+      port: ${MANAGEMENT_PORT}
+      targetPort: mgmt
   type: ClusterIP
