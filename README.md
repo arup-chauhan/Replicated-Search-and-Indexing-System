@@ -85,6 +85,18 @@ This system uses replicated search-serving pods with Kubernetes orchestration:
 - Rolling deployments preserve availability during updates
 - Minikube provides local production-like orchestration with free Kubernetes
 
+Replication in this project is application-tier replication:
+
+- Multiple identical API/runtime instances are deployed as Kubernetes replicas
+- Kubernetes service routing distributes traffic across healthy replicas
+- Replication improves availability and throughput for the serving layer
+
+What this replication model is not:
+
+- It is not Solr/Elasticsearch-style distributed index replication
+- It is not cross-region data replication
+- It is not microservice-per-domain decomposition in this repository
+
 ```mermaid
 flowchart LR
     A[User Query] --> B[Kubernetes Service]
