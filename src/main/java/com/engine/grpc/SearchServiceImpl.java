@@ -3,7 +3,7 @@ package com.engine.grpc;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
-import com.engine.search.LuceneService;
+import com.engine.query.LuceneQueryService;
 import com.engine.suggest.SuggestService;
 
 import java.util.List;
@@ -11,11 +11,11 @@ import java.util.List;
 @GrpcService
 public class SearchServiceImpl extends SearchServiceGrpc.SearchServiceImplBase {
 
-    private final LuceneService luceneService;
+    private final LuceneQueryService luceneQueryService;
     private final SuggestService suggestService;
 
-    public SearchServiceImpl(LuceneService luceneService, SuggestService suggestService) {
-        this.luceneService = luceneService;
+    public SearchServiceImpl(LuceneQueryService luceneQueryService, SuggestService suggestService) {
+        this.luceneQueryService = luceneQueryService;
         this.suggestService = suggestService;
     }
 
@@ -23,7 +23,7 @@ public class SearchServiceImpl extends SearchServiceGrpc.SearchServiceImplBase {
     public void search(SearchRequest request, StreamObserver<SearchResponse> responseObserver) {
         try {
             // 🔎 perform Lucene search
-            List<Hit> hits = luceneService.search(request.getQ(), request.getSize(), request.getOffset());
+            List<Hit> hits = luceneQueryService.search(request.getQ(), request.getSize(), request.getOffset());
 
             // 📌 record the query in Redis
             suggestService.recordQuery(request.getQ());

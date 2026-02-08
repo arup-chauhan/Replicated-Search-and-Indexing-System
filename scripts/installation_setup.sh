@@ -8,43 +8,41 @@ else
   sudo apt-get update -y
 fi
 
-echo ">>> Install Java 21 + Maven + Gradle"
+echo ">>> Installing Java 21 + Maven"
 if command -v brew >/dev/null 2>&1; then
-  brew install openjdk@21 maven gradle
+  brew install openjdk@21 maven
 else
-  sudo apt-get install -y openjdk-21-jdk maven gradle
+  sudo apt-get install -y openjdk-21-jdk maven
 fi
 
-echo ">>> Install Apache Spark"
-brew install apache-spark || sudo apt-get install -y spark
+echo ">>> Installing Docker + kubectl + Minikube + Helm"
+if command -v brew >/dev/null 2>&1; then
+  brew install docker kubectl minikube helm
+else
+  sudo apt-get install -y docker.io kubectl helm curl
+  if ! command -v minikube >/dev/null 2>&1; then
+    curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    sudo install minikube-linux-amd64 /usr/local/bin/minikube
+    rm -f minikube-linux-amd64
+  fi
+fi
 
-echo ">>> Install Redis"
-brew install redis || sudo apt-get install -y redis-server
+echo ">>> Installing Redis and PostgreSQL"
+if command -v brew >/dev/null 2>&1; then
+  brew install redis postgresql
+else
+  sudo apt-get install -y redis-server postgresql
+fi
 
-echo ">>> Install PostgreSQL"
-brew install postgresql || sudo apt-get install -y postgresql
-
-echo ">>> Install Kafka"
-brew install kafka || sudo apt-get install -y kafka
-
-echo ">>> Install Docker + kind + kubectl + Helm"
-brew install docker kind kubectl helm || sudo apt-get install -y docker.io kind kubectl helm
-
-echo ">>> Install Prometheus & Grafana (via brew)"
-brew install prometheus grafana || sudo apt-get install -y prometheus grafana
-
-echo ">>> Verify installations"
+echo ">>> Verifying installations"
 java -version
 mvn -v
-spark-shell --version
-redis-server --version
-psql --version
-kafka-topics --version || true
 docker --version
-kind --version
 kubectl version --client
 helm version
-prometheus --version
-grafana-server -v
+redis-server --version
+psql --version
+echo "minikube version:"
+minikube version || true
 
-echo ">>> All dependencies installed successfully!"
+echo ">>> Setup complete for Replicated Search and Indexing System stack"

@@ -1,4 +1,4 @@
-package com.engine.api.mapper;
+package com.engine.mapper;
 
 import com.engine.dto.MetadataDto;
 import com.engine.metadata.DocumentMeta;

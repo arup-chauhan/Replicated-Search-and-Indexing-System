@@ -1,14 +1,11 @@
-#!/bin/bash
-docker-compose -f monitoring_microservice/docker-compose.yml --env-file .env up -d
+#!/usr/bin/env bash
+set -euo pipefail
 
-#!/bin/bash
-set -e
-
-# Go to monitoring folder
+# Go to monitoring folder.
 cd "$(dirname "$0")/../monitoring_microservice"
 
-# Substitute env vars into prometheus.yml.template
+# Substitute env vars into prometheus.yml.template.
 envsubst < prometheus.yml.template > prometheus.yml
 
-# Start monitoring stack with global .env
-docker-compose --env-file ../.env up -d
+# Start monitoring stack with root .env values.
+docker compose --env-file ../.env up -d

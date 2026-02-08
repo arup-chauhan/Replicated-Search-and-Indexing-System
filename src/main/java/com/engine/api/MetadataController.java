@@ -1,7 +1,7 @@
 package com.engine.api;
 
 import com.engine.dto.MetadataDto;
-import com.engine.api.mapper.MetadataMapper;
+import com.engine.mapper.MetadataMapper;
 import com.engine.metadata.DocumentMeta;
 import com.engine.metadata.MetadataService;
 import org.springframework.http.ResponseEntity;

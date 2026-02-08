@@ -1,2 +1,4 @@
-#!/bin/bash
-docker-compose --env-file .env up -d
+#!/usr/bin/env bash
+set -euo pipefail
+
+docker compose --env-file .env up -d

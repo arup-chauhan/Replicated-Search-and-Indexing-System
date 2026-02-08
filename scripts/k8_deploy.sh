@@ -36,7 +36,7 @@ docker build -t "${ENGINE_IMAGE}" .
 # Ensure ingress controller exists for Ingress resource.
 minikube addons enable ingress >/dev/null
 
-for f in k8/ConfigMap.yaml k8/Secret.yaml k8/Postgresk8.yaml k8/Redisk8.yaml k8/Deployment.yaml k8/Service.yaml k8/Ingress.yaml; do
+for f in k8/configmap.yaml k8/secret.yaml k8/postgres.yaml k8/redis.yaml k8/deployment.yaml k8/service.yaml k8/ingress.yaml; do
   echo "Applying $f..."
   envsubst < "$f" | kubectl apply -f -
 done

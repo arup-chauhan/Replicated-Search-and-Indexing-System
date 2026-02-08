@@ -1,7 +1,7 @@
 package com.engine.api;
 
 import com.engine.grpc.Hit;
-import com.engine.search.LuceneService;
+import com.engine.query.LuceneQueryService;
 import com.engine.suggest.SuggestService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,11 @@ import java.util.Map;
 @RequestMapping("/api/search")
 public class SearchController {
 
-    private final LuceneService luceneService;
+    private final LuceneQueryService luceneQueryService;
     private final SuggestService suggestService;
 
-    public SearchController(LuceneService luceneService, SuggestService suggestService) {
-        this.luceneService = luceneService;
+    public SearchController(LuceneQueryService luceneQueryService, SuggestService suggestService) {
+        this.luceneQueryService = luceneQueryService;
         this.suggestService = suggestService;
     }
 
@@ -27,7 +27,7 @@ public class SearchController {
                                     @RequestParam(defaultValue = "10") int size,
                                     @RequestParam(defaultValue = "0") int offset) {
         try {
-            List<Hit> hits = luceneService.search(q, size, offset);
+            List<Hit> hits = luceneQueryService.search(q, size, offset);
 
             // record query in Redis
             suggestService.recordQuery(q);
