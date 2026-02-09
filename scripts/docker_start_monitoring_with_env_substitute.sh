@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+MONITORING_PROJECT_NAME="${MONITORING_PROJECT_NAME:-replicated-search-and-indexing-system-monitoring}"
+
 # Go to monitoring folder.
 cd "$(dirname "$0")/../monitoring_microservice"
 
@@ -8,4 +10,4 @@ cd "$(dirname "$0")/../monitoring_microservice"
 envsubst < prometheus.yml.template > prometheus.yml
 
 # Start monitoring stack with root .env values.
-docker compose --env-file ../.env up -d
+docker compose -p "${MONITORING_PROJECT_NAME}" --env-file ../.env up -d
