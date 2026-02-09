@@ -278,13 +278,13 @@ Build and run:
 git clone https://github.com/arup-chauhan/Replicated-Search-and-Indexing-System.git
 cd Replicated-Search-and-Indexing-System
 mvn clean package
-docker compose up --build -d
+docker compose -p replicated-search-and-indexing-system-app --env-file .env up --build -d
 ```
 
 Stop local stack:
 
 ```bash
-docker compose down
+docker compose -p replicated-search-and-indexing-system-app --env-file .env down
 ```
 
 ## Kubernetes Deployment (Minikube-First)

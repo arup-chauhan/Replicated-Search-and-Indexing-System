@@ -1,4 +1,4 @@
-name: replicated-search-and-indexing-system-app
+name: ${APP_PROJECT_NAME:-replicated-search-and-indexing-system-app}
 
 services:
   db:

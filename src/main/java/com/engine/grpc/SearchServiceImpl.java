@@ -22,10 +22,10 @@ public class SearchServiceImpl extends SearchServiceGrpc.SearchServiceImplBase {
     @Override
     public void search(SearchRequest request, StreamObserver<SearchResponse> responseObserver) {
         try {
-            // 🔎 perform Lucene search
+            // Perform Lucene search
             List<Hit> hits = luceneQueryService.search(request.getQ(), request.getSize(), request.getOffset());
 
-            // 📌 record the query in Redis
+            // Record the query in Redis
             suggestService.recordQuery(request.getQ());
 
             SearchResponse response = SearchResponse.newBuilder()
