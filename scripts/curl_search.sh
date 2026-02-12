@@ -3,7 +3,7 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
 USERNAME="${USERNAME:-arup}"
-PASSWORD="${PASSWORD:-pass123}"
+PASSWORD="${PASSWORD:-changeme}"
 QUERY="${1:-hello}"
 
 TOKEN=$(curl -s -X POST "${BASE_URL}/api/auth/login?username=${USERNAME}&password=${PASSWORD}" | jq -r '.token')

@@ -5,14 +5,14 @@ services:
     image: postgres:16
     environment:
       POSTGRES_DB: engine
-      POSTGRES_USER: engine
-      POSTGRES_PASSWORD: engine
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
 
   redis:
     image: redis:7.2.5-alpine
-    command: ["redis-server", "--requirepass", "Redis@123"]
+    command: ["sh", "-c", "redis-server --requirepass $REDIS_PASSWORD"]
     ports:
       - "6379:6379"
 
@@ -23,15 +23,15 @@ services:
       - redis
     environment:
       POSTGRES_URL: jdbc:postgresql://db:5432/engine
-      POSTGRES_USER: engine
-      POSTGRES_PASSWORD: engine
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: Redis@123
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       ENGINE_INDEX_PATH: /data/index
-      JWT_HMAC_BASE64: c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0c2VjcmV0
+      JWT_HMAC_BASE64: ${JWT_HMAC_BASE64}
       JWT_TTL_SECONDS: 3600
-      JWT_SECRET: VGhpcyBpcyBjbHVzdGVyZWQgc2VhcmNoIGVuZ2luZQ==
+      JWT_SECRET: ${JWT_SECRET}
       SERVER_PORT: 8080
       GRPC_PORT: 9090
       MANAGEMENT_PORT: 8081

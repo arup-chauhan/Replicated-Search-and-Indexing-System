@@ -3,7 +3,7 @@ set -euo pipefail
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
 USERNAME="${USERNAME:-arup}"
-PASSWORD="${PASSWORD:-pass123}"
+PASSWORD="${PASSWORD:-changeme}"
 
 # Register may fail if user already exists; continue to login.
 curl -s -X POST "${BASE_URL}/api/auth/register?username=${USERNAME}&password=${PASSWORD}" >/dev/null || true

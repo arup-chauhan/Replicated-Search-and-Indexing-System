@@ -2,7 +2,7 @@ spring:
 datasource:
 url: jdbc:postgresql://localhost:5432/engine
 username: engine
-password: engine
+password: ${POSTGRES_PASSWORD}
 jpa:
 hibernate:
 ddl-auto: none
